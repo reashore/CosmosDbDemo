@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Threading.Tasks;
 using CosmosDbDemo.Demos;
 
@@ -9,11 +10,11 @@ namespace CosmosDbDemo
     {
         private static IDictionary<string, Func<Task>> _demoMethods;
 
-        private static void Main()
+        private static async Task Main()
         {
             _demoMethods = new Dictionary<string, Func<Task>>
             {
-                {"DB", DatabasesDemo.Run},
+                {"DB", DatabaseDemo.Run},
                 {"CO", CollectionsDemo.Run},
                 {"DO", DocumentsDemo.Run},
                 {"IX", IndexingDemo.Run},
@@ -21,46 +22,65 @@ namespace CosmosDbDemo
                 {"C", Cleanup.Run}
             };
 
-            Task.Run(async () =>
-            {
-                ShowMenu();
-                while (true)
-                {
-                    Console.Write("Selection: ");
-                    string input = Console.ReadLine();
-                    string demoId = input.ToUpper().Trim();
+            //Task.Run(async () => await ReadEvalPrintLoop()).Wait();
+            await ReadEvalPrintLoop();
+        }
 
-                    if (_demoMethods.Keys.Contains(demoId))
-                    {
-                        Func<Task> demoMethod = _demoMethods[demoId];
-                        await RunDemo(demoMethod);
-                    }
-                    else if (demoId == "Q")
-                    {
-                        break;
-                    }
-                    else
-                    {
-                        Console.WriteLine($"?{input}");
-                    }
+        private static async Task ReadEvalPrintLoop()
+        {
+            ShowMenu();
+
+            while (true)
+            {
+                Console.Write("Selection: ");
+                string input = Console.ReadLine();
+
+                if (string.IsNullOrWhiteSpace(input))
+                {
+                    continue;
                 }
-            }).Wait();
+
+                string demoId = input.ToUpper().Trim();
+
+                if (_demoMethods.Keys.Contains(demoId))
+                {
+                    Func<Task> demoMethod = _demoMethods[demoId];
+                    await RunDemo(demoMethod);
+
+                    Console.WriteLine();
+                    Console.Write("Done. Press any key to continue.");
+                    Console.ReadKey(true);
+                    Console.Clear();
+
+                    ShowMenu();
+                }
+                else if (demoId == "Q")
+                {
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("Invalid input. Try again.");
+                }
+            }
         }
 
         private static void ShowMenu()
         {
-            Console.WriteLine(@"Cosmos DB SQL API .NET SDK demos
+            StringBuilder stringBuilder = new StringBuilder();
 
-DB Databases
-CO Collections
-DO Documents
-IX Indexing
-UP Users & Permissions
+            stringBuilder.AppendLine("Cosmos DB SQL API .NET SDK demos");
+            stringBuilder.AppendLine("DB Databases");
+            stringBuilder.AppendLine("CO Collections");
+            stringBuilder.AppendLine("DO Documents");
+            stringBuilder.AppendLine("IX Indexing");
+            stringBuilder.AppendLine("UP Users & Permissions");
+            stringBuilder.AppendLine("C  Cleanup");
+            stringBuilder.AppendLine("Q  Quit");
 
-C  Cleanup
+            string prompt = stringBuilder.ToString();
 
-Q  Quit
-");
+            Console.WriteLine(prompt);
         }
 
         private static async Task RunDemo(Func<Task> demoMethod)
@@ -79,14 +99,8 @@ Q  Quit
                     message += Environment.NewLine + exception.Message;
                 }
 
-                Console.WriteLine($"Error: {exception.Message}");
+                Console.WriteLine($"Exception: {message}");
             }
-
-            Console.WriteLine();
-            Console.Write("Done. Press any key to continue...");
-            Console.ReadKey(true);
-            Console.Clear();
-            ShowMenu();
         }
     }
 }

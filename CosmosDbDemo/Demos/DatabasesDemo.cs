@@ -3,67 +3,86 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
 
 namespace CosmosDbDemo.Demos
 {
-	public static class DatabasesDemo
+	public static class DatabaseDemo
 	{
 		public static async Task Run()
 		{
 			Debugger.Break();
 
-			string endpoint = ConfigurationManager.AppSettings["CosmosDbEndpoint"];
-			string masterKey = ConfigurationManager.AppSettings["CosmosDbMasterKey"];
+		    string endpoint = ConfigurationManager.AppSettings["CosmosDbEndpoint"];
+		    string masterKey = ConfigurationManager.AppSettings["CosmosDbMasterKey"];
 
-			using (DocumentClient client = new DocumentClient(new Uri(endpoint), masterKey))
+            using (DocumentClient client = new DocumentClient(new Uri(endpoint), masterKey))
 			{
-				ViewDatabases(client);
+				ListDatabases(client);
 
-				await CreateDatabase(client);
-				ViewDatabases(client);
+                const string databaseId = "MyDatabaseId";
+				await CreateDatabase(client, databaseId);
+				ListDatabases(client);
 
-				await DeleteDatabase(client);
+				await DeleteDatabase(client, databaseId);
 			}
 		}
 
-		private static void ViewDatabases(IDocumentClient client)
+        private static void ListDatabases(IDocumentClient client)
 		{
-			Console.WriteLine();
-			Console.WriteLine(">>> View Databases <<<");
+			Console.WriteLine(">>> List Databases <<<");
 
 			List<Database> databases = client.CreateDatabaseQuery().ToList();
 
 			foreach (Database database in databases)
 			{
-				Console.WriteLine($" Database Id: {database.Id}; Rid: {database.ResourceId}");
+			    PrintDatabase(database);
 			}
 
-			Console.WriteLine();
 			Console.WriteLine($"Total databases: {databases.Count}");
 		}
 
-		private static async Task CreateDatabase(IDocumentClient client)
+	    private static void PrintDatabase(Database database)
+	    {
+	        StringBuilder stringBuilder = new StringBuilder();
+
+	        stringBuilder.AppendLine($"Id = {database.Id}");
+	        stringBuilder.AppendLine($"ResourceId = {database.ResourceId}");
+	        stringBuilder.AppendLine($"SelfLink = {database.SelfLink}");
+	        stringBuilder.AppendLine($"ETag = {database.ETag}");
+	        stringBuilder.AppendLine($"Timestamp = {database.Timestamp}");
+	        stringBuilder.AppendLine($"AltLink = {database.AltLink}");
+	        stringBuilder.AppendLine($"CollectionsLink = {database.CollectionsLink}");
+	        stringBuilder.AppendLine($"UsersLink = {database.UsersLink}");
+
+	        string databaseInfo = stringBuilder.ToString();
+
+	        Console.WriteLine(databaseInfo);
+	    }
+
+		private static async Task CreateDatabase(IDocumentClient client, string databaseId)
 		{
-			Console.WriteLine();
 			Console.WriteLine(">>> Create Database <<<");
 
-			Database databaseDefinition = new Database { Id = "MyNewDatabase" };
+			Database databaseDefinition = new Database { Id = databaseId };
 			ResourceResponse<Database> result = await client.CreateDatabaseAsync(databaseDefinition);
 			Database database = result.Resource;
 
-			Console.WriteLine($" Database Id: {database.Id}; Rid: {database.ResourceId}");
+		    PrintDatabase(database);
 		}
 
-		private static async Task DeleteDatabase(IDocumentClient client)
+		private static async Task DeleteDatabase(IDocumentClient client, string databaseId)
 		{
-			Console.WriteLine();
 			Console.WriteLine(">>> Delete Database <<<");
 
-			Uri databaseUri = UriFactory.CreateDatabaseUri("MyNewDatabase");
-			await client.DeleteDatabaseAsync(databaseUri);
+			Uri databaseUri = UriFactory.CreateDatabaseUri(databaseId);
+			ResourceResponse<Database> foo = await client.DeleteDatabaseAsync(databaseUri);
+		    Database database = foo.Resource;
+
+		    PrintDatabase(database);
 		}
 	}
 }
