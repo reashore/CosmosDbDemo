@@ -55,7 +55,6 @@ namespace CosmosDbDemo.Demos
 
 		private static void ListUsers(IDocumentClient client)
 		{
-			Console.WriteLine();
 			Console.WriteLine(">>> View Users in mydb <<<");
 
 			List<User> users = client.CreateUserQuery(MyDbDatabaseUri).ToList();
@@ -84,7 +83,6 @@ namespace CosmosDbDemo.Demos
 
 		private static async Task<User> CreateUser(IDocumentClient client, string userId)
 		{
-			Console.WriteLine();
 			Console.WriteLine($">>> Create User {userId} <<<");
 
 			User userDefinition = new User { Id = userId };
@@ -99,7 +97,6 @@ namespace CosmosDbDemo.Demos
 
 		private static async Task DeleteUser(IDocumentClient client, string userId)
 		{
-			Console.WriteLine();
 			Console.WriteLine($">>> Delete User {userId} <<<");
 
 			Uri userUri = UriFactory.CreateUserUri("mydb", userId);
@@ -112,7 +109,6 @@ namespace CosmosDbDemo.Demos
 
 		private static void ListPermissions(IDocumentClient client, User user)
 		{
-			Console.WriteLine();
 			Console.WriteLine($">>> View Permissions for {user.Id} <<<");
 
 			List<Permission> permissions = client.CreatePermissionQuery(user.PermissionsLink).ToList();
@@ -126,7 +122,6 @@ namespace CosmosDbDemo.Demos
 				PrintPermission(permission);
 			}
 
-			Console.WriteLine();
 			Console.WriteLine($"Total permissions for {user.Id}: {permissions.Count}");
 		}
 
@@ -141,7 +136,6 @@ namespace CosmosDbDemo.Demos
 
 		private static async Task<Permission> CreatePermission(IDocumentClient client, User user, string permId, PermissionMode permissionMode, string resourceLink)
 		{
-			Console.WriteLine();
 			Console.WriteLine($">>> Create Permission {permId} for {user.Id} <<<");
 
 			Permission permissionDefinition = new Permission { Id = permId, PermissionMode = permissionMode, ResourceLink = resourceLink };
@@ -157,7 +151,6 @@ namespace CosmosDbDemo.Demos
 	    // ReSharper disable once UnusedMember.Local
 	    private static async Task DeletePermission(IDocumentClient client, User user, string permissionId)
         {
-            Console.WriteLine();
             Console.WriteLine($">>> Delete Permission {permissionId} from {user.Id} <<<");
 
             Uri permUri = UriFactory.CreatePermissionUri("mydb", "mystore", permissionId);
@@ -168,7 +161,6 @@ namespace CosmosDbDemo.Demos
 
         private static async Task DeletePermission(IDocumentClient client, User user, Permission permission)
 		{
-			Console.WriteLine();
 			Console.WriteLine($">>> Delete Permission {permission.Id} from {user.Id} <<<");
 
 			await client.DeletePermissionAsync(permission.SelfLink);
@@ -198,7 +190,6 @@ namespace CosmosDbDemo.Demos
 				}
 			};
 
-			Console.WriteLine();
 			Console.WriteLine($"Trying to create & delete document as user {user.Id}");
 
 			try

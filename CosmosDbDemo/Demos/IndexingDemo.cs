@@ -31,7 +31,6 @@ namespace CosmosDbDemo.Demos
 
 		private static async Task AutomaticIndexing(IDocumentClient client)
 		{
-			Console.WriteLine();
 			Console.WriteLine(">>> Override Automatic Indexing <<<");
 
 			// Create collection with automatic indexing
@@ -77,9 +76,9 @@ namespace CosmosDbDemo.Demos
 
 			// Unindexed document won't get returned when querying on non-ID (or self-link) property
 
-			List<dynamic> doeDocs = client
-				.CreateDocumentQuery(collectionUri, "SELECT * FROM c WHERE c.lastName = 'Doe'", feedOptions)
-				.ToList();
+		    string sql = "SELECT * FROM c WHERE c.lastName = 'Doe'";
+
+            List<dynamic> doeDocs = client.CreateDocumentQuery(collectionUri, sql, feedOptions).ToList();
 
 			Console.WriteLine($"Documents WHERE lastName = 'Doe': {doeDocs.Count}");
 			foreach (dynamic doeDoc in doeDocs)
@@ -98,10 +97,8 @@ namespace CosmosDbDemo.Demos
 			Console.WriteLine();
 
 			// Unindexed document will get returned when querying by ID (or self-link) property
-			dynamic janeDoc = client
-				.CreateDocumentQuery(collectionUri, "SELECT * FROM c WHERE c.id = 'JANE'", feedOptions)
-				.AsEnumerable()
-				.FirstOrDefault();
+		    sql = "SELECT * FROM c WHERE c.id = 'JANE'";
+            dynamic janeDoc = client.CreateDocumentQuery(collectionUri, sql, feedOptions).AsEnumerable().FirstOrDefault();
 
 			Console.WriteLine("Unindexed document:");
 			Console.WriteLine($" ID: {janeDoc.id}, Name: {janeDoc.firstName} {janeDoc.lastName}");
@@ -112,7 +109,6 @@ namespace CosmosDbDemo.Demos
 
 		private static async Task ManualIndexing(IDocumentClient client)
 		{
-			Console.WriteLine();
 			Console.WriteLine(">>> Manual Indexing <<<");
 
 			// Create collection with manual indexing
@@ -194,7 +190,6 @@ namespace CosmosDbDemo.Demos
 
 		private static async Task SetIndexPaths(IDocumentClient client)
 		{
-			Console.WriteLine();
 			Console.WriteLine(">>> Set Custom Index Paths <<<");
 
 			// Create collection with custom indexing paths

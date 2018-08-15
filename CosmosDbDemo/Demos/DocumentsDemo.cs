@@ -38,32 +38,39 @@ namespace CosmosDbDemo.Demos
 
 		private static async Task CreateDocuments(IDocumentClient client)
 		{
-			Console.WriteLine();
 			Console.WriteLine(">>> Create Documents <<<");
-			Console.WriteLine();
 
-			dynamic dynamicDocumentDefinition1 = new
-			{
-				name = "New Customer 1",
-				address = new
-				{
-					addressType = "Main Office",
-					addressLine1 = "123 Main Street",
-					location = new
-					{
-						city = "Brooklyn",
-						stateProvinceName = "New York"
-					},
-					postalCode = "11229",
-					countryRegionName = "United States"
-				}
-			};
+			await CreateDocumentFromDynamicDefinition(client);
+		    await CreateDocumentFromJson(client);
+		    await CreateDocumentFromPoco(client);
+		}
 
-			Document document1 = await CreateDocument(client, dynamicDocumentDefinition1);
-			Console.WriteLine($"Created document {document1.Id} from dynamic object");
-			Console.WriteLine();
+	    private static async Task CreateDocumentFromDynamicDefinition(IDocumentClient client)
+	    {
+	        dynamic dynamicDocumentDefinition = new
+	        {
+	            name = "New Customer 1",
+	            address = new
+	            {
+	                addressType = "Main Office",
+	                addressLine1 = "123 Main Street",
+	                location = new
+	                {
+	                    city = "Brooklyn",
+	                    stateProvinceName = "New York"
+	                },
+	                postalCode = "11229",
+	                countryRegionName = "United States"
+	            }
+	        };
 
-			const string jsonDocumentDefinition2 = @"
+	        Document document = await CreateDocument(client, dynamicDocumentDefinition);
+	        Console.WriteLine($"Created document {document.Id} from dynamic object");
+	    }
+
+	    private static async Task CreateDocumentFromJson(IDocumentClient client)
+	    {
+	        const string jsonDocumentDefinition = @"
 			{
 				""name"": ""New Customer 2"",
 				""address"": {
@@ -78,34 +85,35 @@ namespace CosmosDbDemo.Demos
 				}
 			}";
 
-			object documentObject2 = JsonConvert.DeserializeObject(jsonDocumentDefinition2);
-			Document document2 = await CreateDocument(client, documentObject2);
-			Console.WriteLine($"Created document {document2.Id} from JSON string");
-			Console.WriteLine();
+	        object jsonObject = JsonConvert.DeserializeObject(jsonDocumentDefinition);
+	        Document document = await CreateDocument(client, jsonObject);
+	        Console.WriteLine($"Created document {document.Id} from JSON string");
+	    }
 
-			Customer pocoDocumentDefinition3 = new Customer
-			{
-				Name = "New Customer 3",
-				Address = new Address
-				{
-					AddressType = "Main Office",
-					AddressLine1 = "123 Main Street",
-					Location = new Location
-					{
-						City = "Brooklyn",
-						StateProvinceName = "New York"
-					},
-					PostalCode = "11229",
-					CountryRegionName = "United States"
-				}
-			};
+	    private static async Task CreateDocumentFromPoco(IDocumentClient client)
+	    {
+	        Customer pocoDocumentDefinition = new Customer
+	        {
+	            Name = "New Customer 3",
+	            Address = new Address
+	            {
+	                AddressType = "Main Office",
+	                AddressLine1 = "123 Main Street",
+	                Location = new Location
+	                {
+	                    City = "Brooklyn",
+	                    StateProvinceName = "New York"
+	                },
+	                PostalCode = "11229",
+	                CountryRegionName = "United States"
+	            }
+	        };
 
-			Document document3 = await CreateDocument(client, pocoDocumentDefinition3);
-			Console.WriteLine($"Created document {document3.Id} from typed object");
-			Console.WriteLine();
-		}
+	        Document document = await CreateDocument(client, pocoDocumentDefinition);
+	        Console.WriteLine($"Created document {document.Id} from typed object");
+	    }
 
-		private static async Task<Document> CreateDocument(IDocumentClient client, object documentObject)
+        private static async Task<Document> CreateDocument(IDocumentClient client, object documentObject)
 		{
 			ResourceResponse<Document> result = await client.CreateDocumentAsync(MyStoreCollectionUri, documentObject);
 			Document document = result.Resource;
@@ -116,9 +124,7 @@ namespace CosmosDbDemo.Demos
 
 		private static void QueryDocumentsWithSql(IDocumentClient client)
 		{
-			Console.WriteLine();
 			Console.WriteLine(">>> Query Documents (SQL) <<<");
-			Console.WriteLine();
 
 			Console.WriteLine("Querying for new customer documents (SQL)");
 			string sql = "SELECT * FROM c WHERE STARTSWITH(c.name, 'New Customer') = true";
@@ -137,6 +143,9 @@ namespace CosmosDbDemo.Demos
 			}
 			Console.WriteLine();
 
+
+
+
 			// Or query for defined types; e.g., Customer
 			List<Customer> customers = client.CreateDocumentQuery<Customer>(MyStoreCollectionUri, sql, options).ToList();
 			Console.WriteLine($"Found {customers.Count} new customers");
@@ -146,6 +155,9 @@ namespace CosmosDbDemo.Demos
 				Console.WriteLine($" City: {customer.Address.Location.City}");
 			}
 			Console.WriteLine();
+
+
+
 
 			Console.WriteLine("Querying for all documents (SQL)");
 			sql = "SELECT * FROM c";
@@ -161,17 +173,13 @@ namespace CosmosDbDemo.Demos
 
 		private static async Task QueryDocumentsWithPaging(IDocumentClient client)
 		{
-			Console.WriteLine();
 			Console.WriteLine(">>> Query Documents (paged results) <<<");
-			Console.WriteLine();
 
 			Console.WriteLine("Querying for all documents");
 			const string sql = "SELECT * FROM c";
 			FeedOptions options = new FeedOptions { EnableCrossPartitionQuery = true };
 
-			IDocumentQuery<dynamic> query = client
-				.CreateDocumentQuery(MyStoreCollectionUri, sql, options)
-				.AsDocumentQuery();
+			IDocumentQuery<dynamic> query = client.CreateDocumentQuery(MyStoreCollectionUri, sql, options).AsDocumentQuery();
 
 			while (query.HasMoreResults)
 			{
@@ -216,9 +224,7 @@ namespace CosmosDbDemo.Demos
 
 		private static async Task ReplaceDocuments(DocumentClient client)
 		{
-			Console.WriteLine();
 			Console.WriteLine(">>> Replace Documents <<<");
-			Console.WriteLine();
 
 			FeedOptions options = new FeedOptions { EnableCrossPartitionQuery = true };
 

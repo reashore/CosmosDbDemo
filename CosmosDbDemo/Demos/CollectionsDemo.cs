@@ -40,7 +40,6 @@ namespace CosmosDbDemo.Demos
 		{
 			Console.WriteLine(">>> View Collections in mydb <<<");
 
-            // bug here
 			List<DocumentCollection> collections = client.CreateDocumentCollectionQuery(MyDbDatabaseUri).ToList();
 
 			int count = 0;
@@ -53,7 +52,6 @@ namespace CosmosDbDemo.Demos
 				PrintCollection(collection);
 			}
 
-			Console.WriteLine();
 			Console.WriteLine($"Total collections in mydb database: {collections.Count}");
 		}
 
