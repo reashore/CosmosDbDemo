@@ -57,8 +57,7 @@ namespace CosmosDbDemo.Demos
 				state = "New York",
 				zip = "11229"
 			};
-			Document indexedDocument =
-				await client.CreateDocumentAsync(collectionUri, indexedDocumentDefinition);
+			Document indexedDocument = await client.CreateDocumentAsync(collectionUri, indexedDocumentDefinition);
 
 			// Add another document (request no indexing)
 			dynamic unindexedDocumentDefinition = new
@@ -72,8 +71,7 @@ namespace CosmosDbDemo.Demos
 				zip = "11229"
 			};
 			RequestOptions requestOptions = new RequestOptions { IndexingDirective = IndexingDirective.Exclude };
-			Document unindexedDocument =
-				await client.CreateDocumentAsync(collectionUri, unindexedDocumentDefinition, requestOptions);
+			Document unindexedDocument = await client.CreateDocumentAsync(collectionUri, unindexedDocumentDefinition, requestOptions);
 
 			FeedOptions feedOptions = new FeedOptions { EnableCrossPartitionQuery = true };
 
@@ -163,9 +161,7 @@ namespace CosmosDbDemo.Demos
 			FeedOptions feedOptions = new FeedOptions { EnableCrossPartitionQuery = true };
 
 			// Unindexed document won't get returned when querying on non-ID (or self-link) property
-			List<dynamic> doeDocs = client
-				.CreateDocumentQuery(collectionUri, "SELECT * FROM c WHERE c.lastName = 'Doe'", feedOptions)
-				.ToList();
+			List<dynamic> doeDocs = client.CreateDocumentQuery(collectionUri, "SELECT * FROM c WHERE c.lastName = 'Doe'", feedOptions).ToList();
 
 			Console.WriteLine($"Documents WHERE lastName = 'Doe': {doeDocs.Count}");
 			foreach (dynamic doeDoc in doeDocs)
@@ -258,7 +254,7 @@ namespace CosmosDbDemo.Demos
 					length = "2hr 1min"
 				}
 			};
-			Document doc1 = await client.CreateDocumentAsync(collectionUri, doc1Definition);
+			Document document1 = await client.CreateDocumentAsync(collectionUri, doc1Definition);
 
 			dynamic doc2Definition = new
 			{
@@ -271,7 +267,7 @@ namespace CosmosDbDemo.Demos
 					length = "2hr 55min"
 				}
 			};
-			Document doc2 = await client.CreateDocumentAsync(collectionUri, doc2Definition);
+			Document document2 = await client.CreateDocumentAsync(collectionUri, doc2Definition);
 
 			dynamic doc3Definition = new
 			{
@@ -285,7 +281,7 @@ namespace CosmosDbDemo.Demos
 					length = "2hr 58min"
 				}
 			};
-			Document doc3 = await client.CreateDocumentAsync(collectionUri, doc3Definition);
+			Document document3 = await client.CreateDocumentAsync(collectionUri, doc3Definition);
 
 			// All the queries in this demo are cross-partition queries
 			FeedOptions allowCrossPartitionQuery = new FeedOptions { EnableCrossPartitionQuery = true };
@@ -344,7 +340,6 @@ namespace CosmosDbDemo.Demos
 			{
 				List<dynamic> queryByLength = client.CreateDocumentQuery(collectionUri, sql, allowCrossPartitionAndScanQuery).ToList();
 			}
-
 
 			// *** Sorting (ORDER BY) ***
 

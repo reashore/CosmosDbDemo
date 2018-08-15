@@ -22,14 +22,14 @@ namespace CosmosDbDemo.Demos
 
 			using (DocumentClient client = new DocumentClient(new Uri(endpoint), masterKey))
 			{
-				ViewUsers(client);
+				ListUsers(client);
 
 				User alice = await CreateUser(client, "Alice");
 				User tom = await CreateUser(client, "Tom");
-				ViewUsers(client);
+				ListUsers(client);
 
-				ViewPermissions(client, alice);
-				ViewPermissions(client, tom);
+				ListPermissions(client, alice);
+				ListPermissions(client, tom);
 
 				const string sql = "SELECT VALUE c._self FROM c WHERE c.id = 'mystore'";
 				string collectionSelfLink = client.CreateDocumentCollectionQuery(MyDbDatabaseUri, sql).AsEnumerable().First().Value;
@@ -37,8 +37,8 @@ namespace CosmosDbDemo.Demos
 				Permission alicePerm = await CreatePermission(client, alice, "AliceCollectionAccess", PermissionMode.All, collectionSelfLink);
 				Permission tomPerm = await CreatePermission(client, tom, "TomCollectionAccess", PermissionMode.Read, collectionSelfLink);
 
-				ViewPermissions(client, alice);
-				ViewPermissions(client, tom);
+				ListPermissions(client, alice);
+				ListPermissions(client, tom);
 
 				await TestPermissions(client, alice, collectionSelfLink);
 				await TestPermissions(client, tom, collectionSelfLink);
@@ -53,7 +53,7 @@ namespace CosmosDbDemo.Demos
 
 		// Users
 
-		private static void ViewUsers(IDocumentClient client)
+		private static void ListUsers(IDocumentClient client)
 		{
 			Console.WriteLine();
 			Console.WriteLine(">>> View Users in mydb <<<");
@@ -66,14 +66,14 @@ namespace CosmosDbDemo.Demos
 				i++;
 				Console.WriteLine();
 				Console.WriteLine($" User #{i}");
-				ViewUser(user);
+				PrintUser(user);
 			}
 
 			Console.WriteLine();
 			Console.WriteLine($"Total users in database mydb: {users.Count}");
 		}
 
-		private static void ViewUser(User user)
+		private static void PrintUser(User user)
 		{
 			Console.WriteLine($"          User ID: {user.Id}");
 			Console.WriteLine($"      Resource ID: {user.ResourceId}");
@@ -92,7 +92,7 @@ namespace CosmosDbDemo.Demos
 			User user = result.Resource;
 
 			Console.WriteLine("Created new user");
-			ViewUser(user);
+			PrintUser(user);
 
 			return user;
 		}
@@ -110,27 +110,27 @@ namespace CosmosDbDemo.Demos
 
 		// Permissions
 
-		private static void ViewPermissions(IDocumentClient client, User user)
+		private static void ListPermissions(IDocumentClient client, User user)
 		{
 			Console.WriteLine();
 			Console.WriteLine($">>> View Permissions for {user.Id} <<<");
 
-			List<Permission> perms = client.CreatePermissionQuery(user.PermissionsLink).ToList();
+			List<Permission> permissions = client.CreatePermissionQuery(user.PermissionsLink).ToList();
 
 			int i = 0;
-			foreach (Permission perm in perms)
+			foreach (Permission permission in permissions)
 			{
 				i++;
 				Console.WriteLine();
 				Console.WriteLine($"Permission #{i}");
-				ViewPermission(perm);
+				PrintPermission(permission);
 			}
 
 			Console.WriteLine();
-			Console.WriteLine($"Total permissions for {user.Id}: {perms.Count}");
+			Console.WriteLine($"Total permissions for {user.Id}: {permissions.Count}");
 		}
 
-		private static void ViewPermission(Permission perm)
+		private static void PrintPermission(Permission perm)
 		{
 			Console.WriteLine($"    Permission ID: {perm.Id}");
 			Console.WriteLine($"      Resource ID: {perm.ResourceId}");
@@ -144,43 +144,41 @@ namespace CosmosDbDemo.Demos
 			Console.WriteLine();
 			Console.WriteLine($">>> Create Permission {permId} for {user.Id} <<<");
 
-			Permission permDefinition = new Permission { Id = permId, PermissionMode = permissionMode, ResourceLink = resourceLink };
-			ResourceResponse<Permission> result = await client.CreatePermissionAsync(user.SelfLink, permDefinition);
-			Permission perm = result.Resource;
+			Permission permissionDefinition = new Permission { Id = permId, PermissionMode = permissionMode, ResourceLink = resourceLink };
+			ResourceResponse<Permission> result = await client.CreatePermissionAsync(user.SelfLink, permissionDefinition);
+			Permission permission = result.Resource;
 
 			Console.WriteLine("Created new permission");
-			ViewPermission(perm);
+			PrintPermission(permission);
 
-			return perm;
+			return permission;
 		}
 
-		//private static async Task DeletePermission(IDocumentClient client, User user, string permId)
-		//{
-		//	Console.WriteLine();
-		//	Console.WriteLine($">>> Delete Permission {permId} from {user.Id} <<<");
+	    // ReSharper disable once UnusedMember.Local
+	    private static async Task DeletePermission(IDocumentClient client, User user, string permissionId)
+        {
+            Console.WriteLine();
+            Console.WriteLine($">>> Delete Permission {permissionId} from {user.Id} <<<");
 
-		//	Uri permUri = UriFactory.CreatePermissionUri("mydb", "mystore", permId);
-		//	await client.DeletePermissionAsync(permUri);
+            Uri permUri = UriFactory.CreatePermissionUri("mydb", "mystore", permissionId);
+            await client.DeletePermissionAsync(permUri);
 
-		//	Console.WriteLine("Deleted permission {permId} from user {user.Id}");
-		//}
+            Console.WriteLine("Deleted permission {permId} from user {user.Id}");
+        }
 
-		private static async Task DeletePermission(IDocumentClient client, User user, Permission perm)
+        private static async Task DeletePermission(IDocumentClient client, User user, Permission permission)
 		{
 			Console.WriteLine();
-			Console.WriteLine($">>> Delete Permission {perm.Id} from {user.Id} <<<");
+			Console.WriteLine($">>> Delete Permission {permission.Id} from {user.Id} <<<");
 
-			await client.DeletePermissionAsync(perm.SelfLink);
+			await client.DeletePermissionAsync(permission.SelfLink);
 
 			Console.WriteLine("Deleted permission {permId} from user {user.Id}");
 		}
 
 		private static async Task TestPermissions(IDocumentClient client, User user, string collectionLink)
 		{
-			Permission perm = client.CreatePermissionQuery(user.PermissionsLink)
-				.AsEnumerable()
-				.First(p => p.ResourceLink == collectionLink);
-
+			Permission perm = client.CreatePermissionQuery(user.PermissionsLink).AsEnumerable().First(p => p.ResourceLink == collectionLink);
 			string resourceToken = perm.Token;
 
 			dynamic documentDefinition = new
@@ -202,9 +200,11 @@ namespace CosmosDbDemo.Demos
 
 			Console.WriteLine();
 			Console.WriteLine($"Trying to create & delete document as user {user.Id}");
+
 			try
 			{
 				string endpoint = ConfigurationManager.AppSettings["CosmosDbEndpoint"];
+
 				using (DocumentClient restrictedClient = new DocumentClient(new Uri(endpoint), resourceToken))
 				{
 					dynamic document = await restrictedClient.CreateDocumentAsync(collectionLink, documentDefinition);

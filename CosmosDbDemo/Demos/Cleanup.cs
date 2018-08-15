@@ -20,65 +20,81 @@ namespace CosmosDbDemo.Demos
 
 			using (DocumentClient client = new DocumentClient(new Uri(endpoint), masterKey))
 			{
-				// Delete documents created by demos
-				Console.WriteLine("Deleting documents created by demos...");
-				const string sql = @"
+				var collectionUri = await DeleteDocuments(client);
+			    await DeleteStoredProcedures(client, collectionUri);
+			    await DeleteUserDefinedFunctions(client, collectionUri);
+			    await DeleteTriggers(client, collectionUri);
+			    await DeleteUsers(client);
+			}
+		}
+
+	    private static async Task<Uri> DeleteDocuments(DocumentClient client)
+	    {
+	        Console.WriteLine("Deleting documents created by demos...");
+	        const string sql = @"
 					SELECT c._self, c.address.postalCode
 					FROM c
 					WHERE
 						STARTSWITH(c.name, 'New Customer') OR
 						STARTSWITH(c.id, '_meta') OR
-						IS_DEFINED(c.weekdayOff)
-				";
+						IS_DEFINED(c.weekdayOff)";
 
-				Uri collectionUri = UriFactory.CreateDocumentCollectionUri("mydb", "mystore");
-				FeedOptions feedOptions = new FeedOptions { EnableCrossPartitionQuery = true };
-				IEnumerable<dynamic> documentKeys = client.CreateDocumentQuery(collectionUri, sql, feedOptions).AsEnumerable();
+	        Uri collectionUri = UriFactory.CreateDocumentCollectionUri("mydb", "mystore");
+	        FeedOptions feedOptions = new FeedOptions { EnableCrossPartitionQuery = true };
+	        IEnumerable<dynamic> documentKeys = client.CreateDocumentQuery(collectionUri, sql, feedOptions).AsEnumerable();
 
-				foreach (dynamic documentKey in documentKeys)
-				{
-					RequestOptions requestOptions = new RequestOptions { PartitionKey = new PartitionKey(documentKey.postalCode) };
-					await client.DeleteDocumentAsync(documentKey._self, requestOptions);
-				}
+	        foreach (dynamic documentKey in documentKeys)
+	        {
+	            RequestOptions requestOptions = new RequestOptions { PartitionKey = new PartitionKey(documentKey.postalCode) };
+	            await client.DeleteDocumentAsync(documentKey._self, requestOptions);
+	        }
 
-				IEnumerable<StoredProcedure> sprocs = client.CreateStoredProcedureQuery(collectionUri).AsEnumerable();
+	        return collectionUri;
+	    }
 
-				// Delete all stored procedures
-				Console.WriteLine("Deleting all stored procedures...");
+	    private static async Task DeleteStoredProcedures(IDocumentClient client, Uri collectionUri)
+	    {
+	        Console.WriteLine("Deleting all stored procedures...");
+	        IEnumerable<StoredProcedure> storedProcedures = client.CreateStoredProcedureQuery(collectionUri).AsEnumerable();
 
-				foreach (StoredProcedure sproc in sprocs)
-				{
-					await client.DeleteStoredProcedureAsync(sproc.SelfLink);
-				}
+            foreach (StoredProcedure storedProcedure in storedProcedures)
+	        {
+	            await client.DeleteStoredProcedureAsync(storedProcedure.SelfLink);
+	        }
+	    }
 
-				// Delete all user defined functions
-				Console.WriteLine("Deleting all user defined functions...");
-				IEnumerable<UserDefinedFunction> udfs = client.CreateUserDefinedFunctionQuery(collectionUri).AsEnumerable();
+	    private static async Task DeleteUserDefinedFunctions(IDocumentClient client, Uri collectionUri)
+	    {
+	        Console.WriteLine("Deleting all user defined functions...");
+	        IEnumerable<UserDefinedFunction> userDefinedFunctions = client.CreateUserDefinedFunctionQuery(collectionUri).AsEnumerable();
 
-				foreach (UserDefinedFunction udf in udfs)
-				{
-					await client.DeleteUserDefinedFunctionAsync(udf.SelfLink);
-				}
+	        foreach (UserDefinedFunction userDefinedFunction in userDefinedFunctions)
+	        {
+	            await client.DeleteUserDefinedFunctionAsync(userDefinedFunction.SelfLink);
+	        }
+	    }
 
-				// Delete all triggers
-				Console.WriteLine("Deleting all triggers...");
-				IEnumerable<Trigger> triggers = client.CreateTriggerQuery(collectionUri).AsEnumerable();
+        private static async Task DeleteTriggers(IDocumentClient client, Uri collectionUri)
+	    {
+	        Console.WriteLine("Deleting all triggers...");
+	        IEnumerable<Trigger> triggers = client.CreateTriggerQuery(collectionUri).AsEnumerable();
 
-				foreach (Trigger trigger in triggers)
-				{
-					await client.DeleteTriggerAsync(trigger.SelfLink);
-				}
+	        foreach (Trigger trigger in triggers)
+	        {
+	            await client.DeleteTriggerAsync(trigger.SelfLink);
+	        }
+	    }
 
-				// Delete all users
-				Console.WriteLine("Deleting all users...");
-				Uri databaseUri = UriFactory.CreateDatabaseUri("mydb");
-				IEnumerable<User> users = client.CreateUserQuery(databaseUri).AsEnumerable();
+	    private static async Task DeleteUsers(IDocumentClient client)
+	    {
+	        Console.WriteLine("Deleting all users...");
+	        Uri databaseUri = UriFactory.CreateDatabaseUri("mydb");
+	        IEnumerable<User> users = client.CreateUserQuery(databaseUri).AsEnumerable();
 
-				foreach (User user in users)
-				{
-					await client.DeleteUserAsync(user.SelfLink);
-				}
-			}
-		}
-	}
+	        foreach (User user in users)
+	        {
+	            await client.DeleteUserAsync(user.SelfLink);
+	        }
+	    }
+    }
 }

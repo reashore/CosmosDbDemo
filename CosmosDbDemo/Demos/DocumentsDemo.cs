@@ -42,7 +42,7 @@ namespace CosmosDbDemo.Demos
 			Console.WriteLine(">>> Create Documents <<<");
 			Console.WriteLine();
 
-			dynamic document1DefinitionDynamic = new
+			dynamic dynamicDocumentDefinition1 = new
 			{
 				name = "New Customer 1",
 				address = new
@@ -59,11 +59,11 @@ namespace CosmosDbDemo.Demos
 				}
 			};
 
-			Document document1 = await CreateDocument(client, document1DefinitionDynamic);
+			Document document1 = await CreateDocument(client, dynamicDocumentDefinition1);
 			Console.WriteLine($"Created document {document1.Id} from dynamic object");
 			Console.WriteLine();
 
-			const string document2DefinitionJson = @"
+			const string jsonDocumentDefinition2 = @"
 			{
 				""name"": ""New Customer 2"",
 				""address"": {
@@ -78,12 +78,12 @@ namespace CosmosDbDemo.Demos
 				}
 			}";
 
-			object document2Object = JsonConvert.DeserializeObject(document2DefinitionJson);
-			Document document2 = await CreateDocument(client, document2Object);
+			object documentObject2 = JsonConvert.DeserializeObject(jsonDocumentDefinition2);
+			Document document2 = await CreateDocument(client, documentObject2);
 			Console.WriteLine($"Created document {document2.Id} from JSON string");
 			Console.WriteLine();
 
-			Customer document3DefinitionPoco = new Customer
+			Customer pocoDocumentDefinition3 = new Customer
 			{
 				Name = "New Customer 3",
 				Address = new Address
@@ -100,7 +100,7 @@ namespace CosmosDbDemo.Demos
 				}
 			};
 
-			Document document3 = await CreateDocument(client, document3DefinitionPoco);
+			Document document3 = await CreateDocument(client, pocoDocumentDefinition3);
 			Console.WriteLine($"Created document {document3.Id} from typed object");
 			Console.WriteLine();
 		}
@@ -193,17 +193,17 @@ namespace CosmosDbDemo.Demos
 			FeedOptions options = new FeedOptions { EnableCrossPartitionQuery = true };
 
 			Console.WriteLine("Querying for UK customers (LINQ)");
-			var q =
-				from d in client.CreateDocumentQuery<Customer>(MyStoreCollectionUri, options)
-				where d.Address.CountryRegionName == "United Kingdom"
+			var query =
+				from document in client.CreateDocumentQuery<Customer>(MyStoreCollectionUri, options)
+				where document.Address.CountryRegionName == "United Kingdom"
 				select new
 				{
-				    d.Id,
-				    d.Name,
-				    d.Address.Location.City
+				    document.Id,
+				    document.Name,
+				    document.Address.Location.City
 				};
 
-			var documents = q.ToList();
+			var documents = query.ToList();
 
 			Console.WriteLine($"Found {documents.Count} UK customers");
 			foreach (var document in documents)
