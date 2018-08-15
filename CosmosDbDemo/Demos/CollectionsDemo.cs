@@ -22,40 +22,42 @@ namespace CosmosDbDemo.Demos
 
 			using (DocumentClient client = new DocumentClient(new Uri(endpoint), masterKey))
 			{
-				ViewCollections(client);
+				ListCollections(client);
 
-				await CreateCollection(client, "MyCollection1");
-				await CreateCollection(client, "MyCollection2", 25000);
-				ViewCollections(client);
+                const string collection1 = "MyCollection1";
+                const string collection2 = "MyCollection2";
 
-				await DeleteCollection(client, "MyCollection1");
-				await DeleteCollection(client, "MyCollection2");
+                await CreateCollection(client, collection1);
+				await CreateCollection(client, collection2);
+				ListCollections(client);
+
+				await DeleteCollection(client, collection1);
+				await DeleteCollection(client, collection2);
 			}
 		}
 
-		private static void ViewCollections(IDocumentClient client)
+		private static void ListCollections(IDocumentClient client)
 		{
-			Console.WriteLine();
 			Console.WriteLine(">>> View Collections in mydb <<<");
 
-			List<DocumentCollection> collections = client
-				.CreateDocumentCollectionQuery(MyDbDatabaseUri)
-				.ToList();
+            // bug here
+			List<DocumentCollection> collections = client.CreateDocumentCollectionQuery(MyDbDatabaseUri).ToList();
 
-			int i = 0;
+			int count = 0;
 			foreach (DocumentCollection collection in collections)
 			{
-				i++;
+				count++;
 				Console.WriteLine();
-				Console.WriteLine($" Collection #{i}");
-				ViewCollection(collection);
+				Console.WriteLine($" Collection #{count}");
+
+				PrintCollection(collection);
 			}
 
 			Console.WriteLine();
 			Console.WriteLine($"Total collections in mydb database: {collections.Count}");
 		}
 
-		private static void ViewCollection(DocumentCollection collection)
+		private static void PrintCollection(Resource collection)
 		{
 			Console.WriteLine($"    Collection ID: {collection.Id}");
 			Console.WriteLine($"      Resource ID: {collection.ResourceId}");
@@ -64,13 +66,8 @@ namespace CosmosDbDemo.Demos
 			Console.WriteLine($"        Timestamp: {collection.Timestamp}");
 		}
 
-		private static async Task CreateCollection(
-			IDocumentClient client,
-			string collectionId,
-			int reservedRUs = 1000,
-			string partitionKey = "/partitionKey")
+		private static async Task CreateCollection(IDocumentClient client, string collectionId, int reservedRUs = 1000, string partitionKey = "/partitionKey")
 		{
-			Console.WriteLine();
 			Console.WriteLine($">>> Create Collection {collectionId} in mydb <<<");
 			Console.WriteLine();
 			Console.WriteLine($" Throughput: {reservedRUs} RU/sec");
@@ -91,18 +88,18 @@ namespace CosmosDbDemo.Demos
 			DocumentCollection collection = result.Resource;
 
 			Console.WriteLine("Created new collection");
-			ViewCollection(collection);
+			PrintCollection(collection);
 		}
 
 		private static async Task DeleteCollection(IDocumentClient client, string collectionId)
 		{
-			Console.WriteLine();
 			Console.WriteLine($">>> Delete Collection {collectionId} in mydb <<<");
 
 			Uri collectionUri = UriFactory.CreateDocumentCollectionUri("mydb", collectionId);
-			await client.DeleteDocumentCollectionAsync(collectionUri);
+			ResourceResponse<DocumentCollection> resourceResponse = await client.DeleteDocumentCollectionAsync(collectionUri);
+		    //DocumentCollection documentCollection = resourceResponse.Resource;
 
-			Console.WriteLine($"Deleted collection {collectionId} from database mydb");
+            //Console.WriteLine($"Deleted collection {collectionId} from database mydb");
 		}
 	}
 }

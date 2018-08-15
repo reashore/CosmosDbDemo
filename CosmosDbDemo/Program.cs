@@ -22,16 +22,15 @@ namespace CosmosDbDemo
                 {"C", Cleanup.Run}
             };
 
-            //Task.Run(async () => await ReadEvalPrintLoop()).Wait();
             await ReadEvalPrintLoop();
         }
 
         private static async Task ReadEvalPrintLoop()
         {
-            ShowMenu();
-
             while (true)
             {
+                ShowMenu();
+
                 Console.Write("Selection: ");
                 string input = Console.ReadLine();
 
@@ -51,8 +50,6 @@ namespace CosmosDbDemo
                     Console.Write("Done. Press any key to continue.");
                     Console.ReadKey(true);
                     Console.Clear();
-
-                    ShowMenu();
                 }
                 else if (demoId == "Q")
                 {

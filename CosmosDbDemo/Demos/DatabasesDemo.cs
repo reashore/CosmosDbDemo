@@ -23,7 +23,7 @@ namespace CosmosDbDemo.Demos
 			{
 				ListDatabases(client);
 
-                const string databaseId = "MyDatabaseId";
+                const string databaseId = "DatabaseId1";
 				await CreateDatabase(client, databaseId);
 				ListDatabases(client);
 
