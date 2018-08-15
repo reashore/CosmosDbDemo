@@ -154,16 +154,16 @@ namespace CosmosDbDemo.Demos
 			return perm;
 		}
 
-		private static async Task DeletePermission(IDocumentClient client, User user, string permId)
-		{
-			Console.WriteLine();
-			Console.WriteLine($">>> Delete Permission {permId} from {user.Id} <<<");
+		//private static async Task DeletePermission(IDocumentClient client, User user, string permId)
+		//{
+		//	Console.WriteLine();
+		//	Console.WriteLine($">>> Delete Permission {permId} from {user.Id} <<<");
 
-			Uri permUri = UriFactory.CreatePermissionUri("mydb", "mystore", permId);
-			await client.DeletePermissionAsync(permUri);
+		//	Uri permUri = UriFactory.CreatePermissionUri("mydb", "mystore", permId);
+		//	await client.DeletePermissionAsync(permUri);
 
-			Console.WriteLine("Deleted permission {permId} from user {user.Id}");
-		}
+		//	Console.WriteLine("Deleted permission {permId} from user {user.Id}");
+		//}
 
 		private static async Task DeletePermission(IDocumentClient client, User user, Permission perm)
 		{

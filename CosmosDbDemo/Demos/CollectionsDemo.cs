@@ -11,8 +11,7 @@ namespace CosmosDbDemo.Demos
 {
 	public static class CollectionsDemo
 	{
-		public static Uri MyDbDatabaseUri =>
-			UriFactory.CreateDatabaseUri("mydb");
+		public static Uri MyDbDatabaseUri => UriFactory.CreateDatabaseUri("mydb");
 
 		public static async Task Run()
 		{

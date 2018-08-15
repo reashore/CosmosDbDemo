@@ -35,6 +35,7 @@ namespace CosmosDbDemo.Demos
 			Console.WriteLine(">>> View Databases <<<");
 
 			List<Database> databases = client.CreateDatabaseQuery().ToList();
+
 			foreach (Database database in databases)
 			{
 				Console.WriteLine($" Database Id: {database.Id}; Rid: {database.ResourceId}");
