@@ -34,7 +34,7 @@ namespace CosmosDbDemo.Demos
 			}
 		}
 
-		private static void ViewCollections(DocumentClient client)
+		private static void ViewCollections(IDocumentClient client)
 		{
 			Console.WriteLine();
 			Console.WriteLine(">>> View Collections in mydb <<<");
@@ -66,7 +66,7 @@ namespace CosmosDbDemo.Demos
 		}
 
 		private static async Task CreateCollection(
-			DocumentClient client,
+			IDocumentClient client,
 			string collectionId,
 			int reservedRUs = 1000,
 			string partitionKey = "/partitionKey")
@@ -95,7 +95,7 @@ namespace CosmosDbDemo.Demos
 			ViewCollection(collection);
 		}
 
-		private static async Task DeleteCollection(DocumentClient client, string collectionId)
+		private static async Task DeleteCollection(IDocumentClient client, string collectionId)
 		{
 			Console.WriteLine();
 			Console.WriteLine($">>> Delete Collection {collectionId} in mydb <<<");
@@ -105,6 +105,5 @@ namespace CosmosDbDemo.Demos
 
 			Console.WriteLine($"Deleted collection {collectionId} from database mydb");
 		}
-
 	}
 }

@@ -22,7 +22,7 @@ namespace CosmosDbDemo.Demos
 			{
 				// Delete documents created by demos
 				Console.WriteLine("Deleting documents created by demos...");
-				string sql = @"
+				const string sql = @"
 					SELECT c._self, c.address.postalCode
 					FROM c
 					WHERE
@@ -34,6 +34,7 @@ namespace CosmosDbDemo.Demos
 				Uri collectionUri = UriFactory.CreateDocumentCollectionUri("mydb", "mystore");
 				FeedOptions feedOptions = new FeedOptions { EnableCrossPartitionQuery = true };
 				IEnumerable<dynamic> documentKeys = client.CreateDocumentQuery(collectionUri, sql, feedOptions).AsEnumerable();
+
 				foreach (dynamic documentKey in documentKeys)
 				{
 					RequestOptions requestOptions = new RequestOptions { PartitionKey = new PartitionKey(documentKey.postalCode) };
@@ -44,6 +45,7 @@ namespace CosmosDbDemo.Demos
 
 				// Delete all stored procedures
 				Console.WriteLine("Deleting all stored procedures...");
+
 				foreach (StoredProcedure sproc in sprocs)
 				{
 					await client.DeleteStoredProcedureAsync(sproc.SelfLink);
@@ -52,6 +54,7 @@ namespace CosmosDbDemo.Demos
 				// Delete all user defined functions
 				Console.WriteLine("Deleting all user defined functions...");
 				IEnumerable<UserDefinedFunction> udfs = client.CreateUserDefinedFunctionQuery(collectionUri).AsEnumerable();
+
 				foreach (UserDefinedFunction udf in udfs)
 				{
 					await client.DeleteUserDefinedFunctionAsync(udf.SelfLink);
@@ -60,6 +63,7 @@ namespace CosmosDbDemo.Demos
 				// Delete all triggers
 				Console.WriteLine("Deleting all triggers...");
 				IEnumerable<Trigger> triggers = client.CreateTriggerQuery(collectionUri).AsEnumerable();
+
 				foreach (Trigger trigger in triggers)
 				{
 					await client.DeleteTriggerAsync(trigger.SelfLink);
@@ -69,6 +73,7 @@ namespace CosmosDbDemo.Demos
 				Console.WriteLine("Deleting all users...");
 				Uri databaseUri = UriFactory.CreateDatabaseUri("mydb");
 				IEnumerable<User> users = client.CreateUserQuery(databaseUri).AsEnumerable();
+
 				foreach (User user in users)
 				{
 					await client.DeleteUserAsync(user.SelfLink);

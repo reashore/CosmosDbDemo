@@ -13,8 +13,7 @@ namespace CosmosDbDemo.Demos
 {
 	public static class DocumentsDemo
 	{
-		public static Uri MyStoreCollectionUri =>
-			UriFactory.CreateDocumentCollectionUri("mydb", "mystore");
+		public static Uri MyStoreCollectionUri => UriFactory.CreateDocumentCollectionUri("mydb", "mystore");
 
 		public static async Task Run()
 		{
@@ -37,7 +36,7 @@ namespace CosmosDbDemo.Demos
 			}
 		}
 
-		private static async Task CreateDocuments(DocumentClient client)
+		private static async Task CreateDocuments(IDocumentClient client)
 		{
 			Console.WriteLine();
 			Console.WriteLine(">>> Create Documents <<<");
@@ -57,7 +56,7 @@ namespace CosmosDbDemo.Demos
 					},
 					postalCode = "11229",
 					countryRegionName = "United States"
-				},
+				}
 			};
 
 			Document document1 = await CreateDocument(client, document1DefinitionDynamic);
@@ -98,7 +97,7 @@ namespace CosmosDbDemo.Demos
 					},
 					PostalCode = "11229",
 					CountryRegionName = "United States"
-				},
+				}
 			};
 
 			Document document3 = await CreateDocument(client, document3DefinitionPoco);
@@ -106,7 +105,7 @@ namespace CosmosDbDemo.Demos
 			Console.WriteLine();
 		}
 
-		private static async Task<Document> CreateDocument(DocumentClient client, object documentObject)
+		private static async Task<Document> CreateDocument(IDocumentClient client, object documentObject)
 		{
 			ResourceResponse<Document> result = await client.CreateDocumentAsync(MyStoreCollectionUri, documentObject);
 			Document document = result.Resource;
@@ -115,7 +114,7 @@ namespace CosmosDbDemo.Demos
 			return result;
 		}
 
-		private static void QueryDocumentsWithSql(DocumentClient client)
+		private static void QueryDocumentsWithSql(IDocumentClient client)
 		{
 			Console.WriteLine();
 			Console.WriteLine(">>> Query Documents (SQL) <<<");
@@ -160,14 +159,14 @@ namespace CosmosDbDemo.Demos
 			Console.WriteLine();
 		}
 
-		private static async Task QueryDocumentsWithPaging(DocumentClient client)
+		private static async Task QueryDocumentsWithPaging(IDocumentClient client)
 		{
 			Console.WriteLine();
 			Console.WriteLine(">>> Query Documents (paged results) <<<");
 			Console.WriteLine();
 
 			Console.WriteLine("Querying for all documents");
-			string sql = "SELECT * FROM c";
+			const string sql = "SELECT * FROM c";
 			FeedOptions options = new FeedOptions { EnableCrossPartitionQuery = true };
 
 			IDocumentQuery<dynamic> query = client
@@ -185,7 +184,7 @@ namespace CosmosDbDemo.Demos
 			Console.WriteLine();
 		}
 
-		private static void QueryDocumentsWithLinq(DocumentClient client)
+		private static void QueryDocumentsWithLinq(IDocumentClient client)
 		{
 			Console.WriteLine();
 			Console.WriteLine(">>> Query Documents (LINQ) <<<");
@@ -199,9 +198,9 @@ namespace CosmosDbDemo.Demos
 				where d.Address.CountryRegionName == "United Kingdom"
 				select new
 				{
-					Id = d.Id,
-					Name = d.Name,
-					City = d.Address.Location.City
+				    d.Id,
+				    d.Name,
+				    d.Address.Location.City
 				};
 
 			var documents = q.ToList();
@@ -209,7 +208,7 @@ namespace CosmosDbDemo.Demos
 			Console.WriteLine($"Found {documents.Count} UK customers");
 			foreach (var document in documents)
 			{
-				dynamic d = document as dynamic;
+				dynamic d = document;
 				Console.WriteLine($" Id: {d.Id}; Name: {d.Name}; City: {d.City}");
 			}
 			Console.WriteLine();
@@ -258,7 +257,7 @@ namespace CosmosDbDemo.Demos
 			FeedOptions feedOptions = new FeedOptions { EnableCrossPartitionQuery = true };
 
 			Console.WriteLine("Querying for documents to be deleted");
-			string sql = "SELECT c._self, c.address.postalCode FROM c WHERE STARTSWITH(c.name, 'New Customer') = true";
+			const string sql = "SELECT c._self, c.address.postalCode FROM c WHERE STARTSWITH(c.name, 'New Customer') = true";
 			List<dynamic> documentKeys = client.CreateDocumentQuery(MyStoreCollectionUri, sql, feedOptions).ToList();
 
 			Console.WriteLine($"Found {documentKeys.Count} documents to be deleted");
@@ -271,6 +270,5 @@ namespace CosmosDbDemo.Demos
 			Console.WriteLine($"Deleted {documentKeys.Count} new customer documents");
 			Console.WriteLine();
 		}
-
 	}
 }

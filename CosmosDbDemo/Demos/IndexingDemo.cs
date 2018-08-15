@@ -12,8 +12,7 @@ namespace CosmosDbDemo.Demos
 {
 	public static class IndexingDemo
 	{
-		public static Uri MyDbDatabaseUri =>
-			UriFactory.CreateDatabaseUri("mydb");
+		public static Uri MyDbDatabaseUri => UriFactory.CreateDatabaseUri("mydb");
 
 		public static async Task Run()
 		{
@@ -30,7 +29,7 @@ namespace CosmosDbDemo.Demos
 			}
 		}
 
-		private static async Task AutomaticIndexing(DocumentClient client)
+		private static async Task AutomaticIndexing(IDocumentClient client)
 		{
 			Console.WriteLine();
 			Console.WriteLine(">>> Override Automatic Indexing <<<");
@@ -56,7 +55,7 @@ namespace CosmosDbDemo.Demos
 				addressLine = "123 Main Street",
 				city = "Brooklyn",
 				state = "New York",
-				zip = "11229",
+				zip = "11229"
 			};
 			Document indexedDocument =
 				await client.CreateDocumentAsync(collectionUri, indexedDocumentDefinition);
@@ -70,7 +69,7 @@ namespace CosmosDbDemo.Demos
 				addressLine = "123 Main Street",
 				city = "Brooklyn",
 				state = "New York",
-				zip = "11229",
+				zip = "11229"
 			};
 			RequestOptions requestOptions = new RequestOptions { IndexingDirective = IndexingDirective.Exclude };
 			Document unindexedDocument =
@@ -106,14 +105,14 @@ namespace CosmosDbDemo.Demos
 				.AsEnumerable()
 				.FirstOrDefault();
 
-			Console.WriteLine($"Unindexed document:");
+			Console.WriteLine("Unindexed document:");
 			Console.WriteLine($" ID: {janeDoc.id}, Name: {janeDoc.firstName} {janeDoc.lastName}");
 
 			// Delete the collection
 			await client.DeleteDocumentCollectionAsync(collectionUri);
 		}
 
-		private static async Task ManualIndexing(DocumentClient client)
+		private static async Task ManualIndexing(IDocumentClient client)
 		{
 			Console.WriteLine();
 			Console.WriteLine(">>> Manual Indexing <<<");
@@ -127,8 +126,8 @@ namespace CosmosDbDemo.Demos
 				PartitionKey = partitionKeyDefinition,
 				IndexingPolicy = new IndexingPolicy
 				{
-					Automatic = false,
-				},
+					Automatic = false
+				}
 			};
 			RequestOptions options = new RequestOptions { OfferThroughput = 1000 };
 			ResourceResponse<DocumentCollection> collection = await client.CreateDocumentCollectionAsync(MyDbDatabaseUri, collectionDefinition, options);
@@ -143,7 +142,7 @@ namespace CosmosDbDemo.Demos
 				addressLine = "123 Main Street",
 				city = "Brooklyn",
 				state = "New York",
-				zip = "11229",
+				zip = "11229"
 			};
 			Document unindexedDocument = await client.CreateDocumentAsync(collectionUri, unindexedDocumentDefinition);
 
@@ -156,7 +155,7 @@ namespace CosmosDbDemo.Demos
 				addressLine = "123 Main Street",
 				city = "Brooklyn",
 				state = "New York",
-				zip = "11229",
+				zip = "11229"
 			};
 			RequestOptions requestOptions = new RequestOptions { IndexingDirective = IndexingDirective.Include };
 			Document indexedDocument = await client.CreateDocumentAsync(collectionUri, indexedDocumentDefinition, requestOptions);
@@ -190,14 +189,14 @@ namespace CosmosDbDemo.Demos
 				.AsEnumerable()
 				.FirstOrDefault();
 
-			Console.WriteLine($"Unindexed document:");
+			Console.WriteLine("Unindexed document:");
 			Console.WriteLine($" ID: {johnDoc.id}, Name: {johnDoc.firstName} {johnDoc.lastName}");
 
 			// Delete the collection
 			await client.DeleteDocumentCollectionAsync(collectionUri);
 		}
 
-		private static async Task SetIndexPaths(DocumentClient client)
+		private static async Task SetIndexPaths(IDocumentClient client)
 		{
 			Console.WriteLine();
 			Console.WriteLine(">>> Set Custom Index Paths <<<");
@@ -229,7 +228,7 @@ namespace CosmosDbDemo.Demos
 							Indexes = new Collection<Index>
 							{
 								new HashIndex(DataType.String),
-								new RangeIndex(DataType.Number),
+								new RangeIndex(DataType.Number)
 							}
 						}
 					},
@@ -237,10 +236,10 @@ namespace CosmosDbDemo.Demos
 					{
 						new ExcludedPath
 						{
-							Path = "/misc/*",
+							Path = "/misc/*"
 						}
 					}
-				},
+				}
 			};
 			RequestOptions options = new RequestOptions { OfferThroughput = 1000 };
 			ResourceResponse<DocumentCollection> collection = await client.CreateDocumentCollectionAsync(MyDbDatabaseUri, collectionDefinition, options);
@@ -364,6 +363,5 @@ namespace CosmosDbDemo.Demos
 			// Delete the collection
 			await client.DeleteDocumentCollectionAsync(collectionUri);
 		}
-
 	}
 }

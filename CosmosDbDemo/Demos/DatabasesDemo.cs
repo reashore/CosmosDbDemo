@@ -29,7 +29,7 @@ namespace CosmosDbDemo.Demos
 			}
 		}
 
-		private static void ViewDatabases(DocumentClient client)
+		private static void ViewDatabases(IDocumentClient client)
 		{
 			Console.WriteLine();
 			Console.WriteLine(">>> View Databases <<<");
@@ -44,7 +44,7 @@ namespace CosmosDbDemo.Demos
 			Console.WriteLine($"Total databases: {databases.Count}");
 		}
 
-		private static async Task CreateDatabase(DocumentClient client)
+		private static async Task CreateDatabase(IDocumentClient client)
 		{
 			Console.WriteLine();
 			Console.WriteLine(">>> Create Database <<<");
@@ -56,7 +56,7 @@ namespace CosmosDbDemo.Demos
 			Console.WriteLine($" Database Id: {database.Id}; Rid: {database.ResourceId}");
 		}
 
-		private static async Task DeleteDatabase(DocumentClient client)
+		private static async Task DeleteDatabase(IDocumentClient client)
 		{
 			Console.WriteLine();
 			Console.WriteLine(">>> Delete Database <<<");
@@ -64,6 +64,5 @@ namespace CosmosDbDemo.Demos
 			Uri databaseUri = UriFactory.CreateDatabaseUri("MyNewDatabase");
 			await client.DeleteDatabaseAsync(databaseUri);
 		}
-
 	}
 }

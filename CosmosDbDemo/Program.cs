@@ -29,6 +29,7 @@ namespace CosmosDbDemo
                     Console.Write("Selection: ");
                     string input = Console.ReadLine();
                     string demoId = input.ToUpper().Trim();
+
                     if (_demoMethods.Keys.Contains(demoId))
                     {
                         Func<Task> demoMethod = _demoMethods[demoId];
@@ -77,8 +78,10 @@ Q  Quit
                     exception = exception.InnerException;
                     message += Environment.NewLine + exception.Message;
                 }
+
                 Console.WriteLine($"Error: {exception.Message}");
             }
+
             Console.WriteLine();
             Console.Write("Done. Press any key to continue...");
             Console.ReadKey(true);
@@ -87,5 +90,3 @@ Q  Quit
         }
     }
 }
-
-

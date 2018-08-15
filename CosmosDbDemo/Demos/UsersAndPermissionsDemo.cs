@@ -11,8 +11,7 @@ namespace CosmosDbDemo.Demos
 {
 	public static class UsersAndPermissionsDemo
 	{
-		public static Uri MyDbDatabaseUri =>
-			UriFactory.CreateDatabaseUri("mydb");
+		public static Uri MyDbDatabaseUri => UriFactory.CreateDatabaseUri("mydb");
 
 		public static async Task Run()
 		{
@@ -32,7 +31,7 @@ namespace CosmosDbDemo.Demos
 				ViewPermissions(client, alice);
 				ViewPermissions(client, tom);
 
-				string sql = "SELECT VALUE c._self FROM c WHERE c.id = 'mystore'";
+				const string sql = "SELECT VALUE c._self FROM c WHERE c.id = 'mystore'";
 				string collectionSelfLink = client.CreateDocumentCollectionQuery(MyDbDatabaseUri, sql).AsEnumerable().First().Value;
 
 				Permission alicePerm = await CreatePermission(client, alice, "AliceCollectionAccess", PermissionMode.All, collectionSelfLink);
@@ -54,7 +53,7 @@ namespace CosmosDbDemo.Demos
 
 		// Users
 
-		private static void ViewUsers(DocumentClient client)
+		private static void ViewUsers(IDocumentClient client)
 		{
 			Console.WriteLine();
 			Console.WriteLine(">>> View Users in mydb <<<");
@@ -83,7 +82,7 @@ namespace CosmosDbDemo.Demos
 			Console.WriteLine($"        Timestamp: {user.Timestamp}");
 		}
 
-		private static async Task<User> CreateUser(DocumentClient client, string userId)
+		private static async Task<User> CreateUser(IDocumentClient client, string userId)
 		{
 			Console.WriteLine();
 			Console.WriteLine($">>> Create User {userId} <<<");
@@ -98,7 +97,7 @@ namespace CosmosDbDemo.Demos
 			return user;
 		}
 
-		private static async Task DeleteUser(DocumentClient client, string userId)
+		private static async Task DeleteUser(IDocumentClient client, string userId)
 		{
 			Console.WriteLine();
 			Console.WriteLine($">>> Delete User {userId} <<<");
@@ -111,7 +110,7 @@ namespace CosmosDbDemo.Demos
 
 		// Permissions
 
-		private static void ViewPermissions(DocumentClient client, User user)
+		private static void ViewPermissions(IDocumentClient client, User user)
 		{
 			Console.WriteLine();
 			Console.WriteLine($">>> View Permissions for {user.Id} <<<");
@@ -140,7 +139,7 @@ namespace CosmosDbDemo.Demos
 			Console.WriteLine($"        Timestamp: {perm.Timestamp}");
 		}
 
-		private static async Task<Permission> CreatePermission(DocumentClient client, User user, string permId, PermissionMode permissionMode, string resourceLink)
+		private static async Task<Permission> CreatePermission(IDocumentClient client, User user, string permId, PermissionMode permissionMode, string resourceLink)
 		{
 			Console.WriteLine();
 			Console.WriteLine($">>> Create Permission {permId} for {user.Id} <<<");
@@ -155,7 +154,7 @@ namespace CosmosDbDemo.Demos
 			return perm;
 		}
 
-		private static async Task DeletePermission(DocumentClient client, User user, string permId)
+		private static async Task DeletePermission(IDocumentClient client, User user, string permId)
 		{
 			Console.WriteLine();
 			Console.WriteLine($">>> Delete Permission {permId} from {user.Id} <<<");
@@ -166,7 +165,7 @@ namespace CosmosDbDemo.Demos
 			Console.WriteLine("Deleted permission {permId} from user {user.Id}");
 		}
 
-		private static async Task DeletePermission(DocumentClient client, User user, Permission perm)
+		private static async Task DeletePermission(IDocumentClient client, User user, Permission perm)
 		{
 			Console.WriteLine();
 			Console.WriteLine($">>> Delete Permission {perm.Id} from {user.Id} <<<");
@@ -176,7 +175,7 @@ namespace CosmosDbDemo.Demos
 			Console.WriteLine("Deleted permission {permId} from user {user.Id}");
 		}
 
-		private static async Task TestPermissions(DocumentClient client, User user, string collectionLink)
+		private static async Task TestPermissions(IDocumentClient client, User user, string collectionLink)
 		{
 			Permission perm = client.CreatePermissionQuery(user.PermissionsLink)
 				.AsEnumerable()
@@ -198,7 +197,7 @@ namespace CosmosDbDemo.Demos
 					},
 					postalCode = "11229",
 					countryRegionName = "United States"
-				},
+				}
 			};
 
 			Console.WriteLine();
