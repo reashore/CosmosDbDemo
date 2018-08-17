@@ -125,14 +125,15 @@ namespace CosmosDbDemo.Demos
 		private static void QueryDocumentsWithSql(IDocumentClient client)
 		{
 			Console.WriteLine(">>> Query Documents (SQL) <<<");
-
 			Console.WriteLine("Querying for new customer documents (SQL)");
+
 			string sql = "SELECT * FROM c WHERE STARTSWITH(c.name, 'New Customer') = true";
 			FeedOptions options = new FeedOptions { EnableCrossPartitionQuery = true };
 
 			// Query for dynamic objects
 			List<dynamic> documents = client.CreateDocumentQuery(MyStoreCollectionUri, sql, options).ToList();
 			Console.WriteLine($"Found {documents.Count} new documents");
+
 			foreach (dynamic document in documents)
 			{
 				Console.WriteLine($" Id: {document.id}; Name: {document.name};");
@@ -174,8 +175,8 @@ namespace CosmosDbDemo.Demos
 		private static async Task QueryDocumentsWithPaging(IDocumentClient client)
 		{
 			Console.WriteLine(">>> Query Documents (paged results) <<<");
-
 			Console.WriteLine("Querying for all documents");
+
 			const string sql = "SELECT * FROM c";
 			FeedOptions options = new FeedOptions { EnableCrossPartitionQuery = true };
 
@@ -184,6 +185,7 @@ namespace CosmosDbDemo.Demos
 			while (query.HasMoreResults)
 			{
 				FeedResponse<dynamic> documents = await query.ExecuteNextAsync();
+
 				foreach (dynamic document in documents)
 				{
 					Console.WriteLine($" Id: {document.id}; Name: {document.name};");
@@ -194,9 +196,7 @@ namespace CosmosDbDemo.Demos
 
 		private static void QueryDocumentsWithLinq(IDocumentClient client)
 		{
-			Console.WriteLine();
 			Console.WriteLine(">>> Query Documents (LINQ) <<<");
-			Console.WriteLine();
 
 			FeedOptions options = new FeedOptions { EnableCrossPartitionQuery = true };
 
@@ -256,9 +256,7 @@ namespace CosmosDbDemo.Demos
 
 		private static async Task DeleteDocuments(DocumentClient client)
 		{
-			Console.WriteLine();
 			Console.WriteLine(">>> Delete Documents <<<");
-			Console.WriteLine();
 
 			FeedOptions feedOptions = new FeedOptions { EnableCrossPartitionQuery = true };
 

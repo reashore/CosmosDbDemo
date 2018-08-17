@@ -12,7 +12,6 @@ namespace CosmosDbDemo.Demos
 	{
 		public static async Task Run()
 		{
-			Console.WriteLine();
 			Console.WriteLine(">>> Cleanup <<<");
 
 			string endpoint = ConfigurationManager.AppSettings["CosmosDbEndpoint"];
@@ -30,7 +29,7 @@ namespace CosmosDbDemo.Demos
 
 	    private static async Task<Uri> DeleteDocuments(DocumentClient client)
 	    {
-	        Console.WriteLine("Deleting documents created by demos");
+	        Console.WriteLine("Deleting documents");
 	        const string sql = @"
 					SELECT c._self, c.address.postalCode
 					FROM c
@@ -54,7 +53,7 @@ namespace CosmosDbDemo.Demos
 
 	    private static async Task DeleteStoredProcedures(IDocumentClient client, Uri collectionUri)
 	    {
-	        Console.WriteLine("Deleting all stored procedures");
+	        Console.WriteLine("Deleting stored procedures");
 	        IEnumerable<StoredProcedure> storedProcedures = client.CreateStoredProcedureQuery(collectionUri).AsEnumerable();
 
             foreach (StoredProcedure storedProcedure in storedProcedures)
@@ -65,7 +64,7 @@ namespace CosmosDbDemo.Demos
 
 	    private static async Task DeleteUserDefinedFunctions(IDocumentClient client, Uri collectionUri)
 	    {
-	        Console.WriteLine("Deleting all user defined functions");
+	        Console.WriteLine("Deleting user defined functions");
 	        IEnumerable<UserDefinedFunction> userDefinedFunctions = client.CreateUserDefinedFunctionQuery(collectionUri).AsEnumerable();
 
 	        foreach (UserDefinedFunction userDefinedFunction in userDefinedFunctions)
@@ -76,7 +75,7 @@ namespace CosmosDbDemo.Demos
 
         private static async Task DeleteTriggers(IDocumentClient client, Uri collectionUri)
 	    {
-	        Console.WriteLine("Deleting all triggers");
+	        Console.WriteLine("Deleting triggers");
 	        IEnumerable<Trigger> triggers = client.CreateTriggerQuery(collectionUri).AsEnumerable();
 
 	        foreach (Trigger trigger in triggers)
@@ -87,7 +86,7 @@ namespace CosmosDbDemo.Demos
 
 	    private static async Task DeleteUsers(IDocumentClient client)
 	    {
-	        Console.WriteLine("Deleting all users");
+	        Console.WriteLine("Deleting users");
 	        Uri databaseUri = UriFactory.CreateDatabaseUri("mydb");
 	        IEnumerable<User> users = client.CreateUserQuery(databaseUri).AsEnumerable();
 
