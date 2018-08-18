@@ -19,7 +19,7 @@ namespace CosmosDbDemo.Demos
 
 			using (DocumentClient client = new DocumentClient(new Uri(endpoint), masterKey))
 			{
-				var collectionUri = await DeleteDocuments(client);
+				Uri collectionUri = await DeleteDocuments(client);
 			    await DeleteStoredProcedures(client, collectionUri);
 			    await DeleteUserDefinedFunctions(client, collectionUri);
 			    await DeleteTriggers(client, collectionUri);

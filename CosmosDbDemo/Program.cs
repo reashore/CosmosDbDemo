@@ -19,7 +19,10 @@ namespace CosmosDbDemo
                 {"DO", DocumentsDemo.Run},
                 {"IX", IndexingDemo.Run},
                 {"UP", UsersAndPermissionsDemo.Run},
-                {"C", Cleanup.Run}
+                {"SP", StoredProceduresDemo.Run},
+                {"TR", TriggersDemo.Run},
+                {"UF", UserDefinedFunctionsDemo.Run},
+                { "C", Cleanup.Run}
             };
 
             await ReadEvalPrintLoop();
@@ -72,6 +75,9 @@ namespace CosmosDbDemo
             stringBuilder.AppendLine("DO Documents");
             stringBuilder.AppendLine("IX Indexing");
             stringBuilder.AppendLine("UP Users & Permissions");
+            stringBuilder.AppendLine("SP Stored Procedures");
+            stringBuilder.AppendLine("TR Triggers");
+            stringBuilder.AppendLine("UF User-Defined Functions");
             stringBuilder.AppendLine("C  Cleanup");
             stringBuilder.AppendLine("Q  Quit");
 
