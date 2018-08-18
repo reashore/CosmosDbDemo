@@ -25,16 +25,13 @@ namespace CosmosDbDemo.Demos
 			using (DocumentClient client = new DocumentClient(new Uri(endpoint), masterKey))
 			{
 				await CreateStoredProcedures(client);
-
 				ListStoredProcedures(client);
-
 				await ExecuteStoredProcedures(client);
-
 				await DeleteStoredProcedures(client);
 			}
 		}
 
-		private static async Task CreateStoredProcedures(DocumentClient client)
+		private static async Task CreateStoredProcedures(IDocumentClient client)
 		{
 			Console.WriteLine();
 			Console.WriteLine(">>> Create Stored Procedures <<<");
@@ -47,9 +44,10 @@ namespace CosmosDbDemo.Demos
 			await CreateStoredProcedure(client, "spBulkDelete");
 		}
 
-		private static async Task<StoredProcedure> CreateStoredProcedure(DocumentClient client, string sprocId)
+		private static async Task<StoredProcedure> CreateStoredProcedure(IDocumentClient client, string sprocId)
 		{
-			string sprocBody = File.ReadAllText($@"..\..\Server\{sprocId}.js");
+		    string storedProcedureFileName = $@"..\..\Server\{sprocId}.js";
+            string sprocBody = File.ReadAllText(storedProcedureFileName);
 
 			StoredProcedure sprocDefinition = new StoredProcedure
 			{
@@ -230,7 +228,7 @@ namespace CosmosDbDemo.Demos
 			await client.DeleteDocumentAsync(document3._self.ToString(), options);
 		}
 
-		private static async Task Execute_spBulkInsert(DocumentClient client)
+		private static async Task Execute_spBulkInsert(IDocumentClient client)
 		{
 			Console.WriteLine();
 			Console.WriteLine("Execute spBulkInsert");
@@ -277,7 +275,7 @@ namespace CosmosDbDemo.Demos
 			Console.WriteLine();
 		}
 
-		private static async Task<int> Execute_spBulkDelete(DocumentClient client, string sql)
+		private static async Task<int> Execute_spBulkDelete(IDocumentClient client, string sql)
 		{
 			Uri uri = UriFactory.CreateStoredProcedureUri("mydb", "mystore", "spBulkDelete");
 			RequestOptions options = new RequestOptions { PartitionKey = new PartitionKey("12345") };
@@ -297,7 +295,7 @@ namespace CosmosDbDemo.Demos
 			return totalDeleted;
 		}
 
-		private static async Task DeleteStoredProcedures(DocumentClient client)
+		private static async Task DeleteStoredProcedures(IDocumentClient client)
 		{
 			Console.WriteLine();
 			Console.WriteLine(">>> Delete Stored Procedures <<<");
@@ -310,7 +308,7 @@ namespace CosmosDbDemo.Demos
 			await DeleteStoredProcedure(client, "spBulkDelete");
 		}
 
-		private static async Task DeleteStoredProcedure(DocumentClient client, string sprocId)
+		private static async Task DeleteStoredProcedure(IDocumentClient client, string sprocId)
 		{
 			Uri sprocUri = UriFactory.CreateStoredProcedureUri("mydb", "mystore", sprocId);
 
@@ -318,6 +316,5 @@ namespace CosmosDbDemo.Demos
 
 			Console.WriteLine($"Deleted stored procedure: {sprocId}");
 		}
-
 	}
 }

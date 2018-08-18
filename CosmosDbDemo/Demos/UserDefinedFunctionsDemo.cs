@@ -12,8 +12,7 @@ namespace CosmosDbDemo.Demos
 {
 	public static class UserDefinedFunctionsDemo
 	{
-		public static Uri MyStoreCollectionUri =>
-			UriFactory.CreateDocumentCollectionUri("mydb", "mystore");
+		public static Uri MyStoreCollectionUri => UriFactory.CreateDocumentCollectionUri("mydb", "mystore");
 
 		public static async Task Run()
 		{
@@ -36,7 +35,7 @@ namespace CosmosDbDemo.Demos
 			}
 		}
 
-		private static async Task CreateUserDefinedFunctions(DocumentClient client)
+		private static async Task CreateUserDefinedFunctions(IDocumentClient client)
 		{
 			Console.WriteLine();
 			Console.WriteLine(">>> Create User Defined Functions <<<");
@@ -47,9 +46,10 @@ namespace CosmosDbDemo.Demos
 			await CreateUserDefinedFunction(client, "udfFormatCityStateZip");
 		}
 
-		private static async Task<UserDefinedFunction> CreateUserDefinedFunction(DocumentClient client, string udfId)
+		private static async Task<UserDefinedFunction> CreateUserDefinedFunction(IDocumentClient client, string udfId)
 		{
-			string udfBody = File.ReadAllText($@"..\..\Server\{udfId}.js");
+		    string userDefinedFunctionFileName = $@"..\..\Server\{udfId}.js";
+            string udfBody = File.ReadAllText(userDefinedFunctionFileName);
 			UserDefinedFunction udfDefinition = new UserDefinedFunction
 			{
 				Id = udfId,
@@ -63,7 +63,7 @@ namespace CosmosDbDemo.Demos
 			return udf;
 		}
 
-		private static void ViewUserDefinedFunctions(DocumentClient client)
+		private static void ViewUserDefinedFunctions(IDocumentClient client)
 		{
 			Console.WriteLine();
 			Console.WriteLine(">>> View UDFs <<<");
@@ -79,7 +79,7 @@ namespace CosmosDbDemo.Demos
 			}
 		}
 
-		private static void Execute_udfRegEx(DocumentClient client)
+		private static void Execute_udfRegEx(IDocumentClient client)
 		{
 			const string sql = "SELECT c.id, c.name FROM c WHERE udf.udfRegEx(c.name, 'Rental') != null";
 
@@ -95,7 +95,7 @@ namespace CosmosDbDemo.Demos
 			}
 		}
 
-		private static void Execute_udfIsNorthAmerica(DocumentClient client)
+		private static void Execute_udfIsNorthAmerica(IDocumentClient client)
 		{
 			string sql = @"
 				SELECT c.name, c.address.countryRegionName
@@ -129,7 +129,7 @@ namespace CosmosDbDemo.Demos
 			}
 		}
 
-		private static void Execute_udfFormatCityStateZip(DocumentClient client)
+		private static void Execute_udfFormatCityStateZip(IDocumentClient client)
 		{
 			string sql = "SELECT c.name, udf.udfFormatCityStateZip(c) AS csz FROM c";
 
@@ -144,7 +144,7 @@ namespace CosmosDbDemo.Demos
 			}
 		}
 
-		private static async Task DeleteUserDefinedFunctions(DocumentClient client)
+		private static async Task DeleteUserDefinedFunctions(IDocumentClient client)
 		{
 			Console.WriteLine();
 			Console.WriteLine(">>> Delete User Defined Functions <<<");
@@ -155,7 +155,7 @@ namespace CosmosDbDemo.Demos
 			await DeleteUserDefinedFunction(client, "udfFormatCityStateZip");
 		}
 
-		private static async Task DeleteUserDefinedFunction(DocumentClient client, string udfId)
+		private static async Task DeleteUserDefinedFunction(IDocumentClient client, string udfId)
 		{
 			Uri udfUri = UriFactory.CreateUserDefinedFunctionUri("mydb", "mystore", udfId);
 

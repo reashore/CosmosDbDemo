@@ -34,18 +34,20 @@ namespace CosmosDbDemo.Demos
 			}
 		}
 
-		private static async Task CreateTriggers(DocumentClient client)
+		private static async Task CreateTriggers(IDocumentClient client)
 		{
 			Console.WriteLine();
 			Console.WriteLine(">>> Create Triggers <<<");
 			Console.WriteLine();
 
 			// Create pre-trigger
-			string trgValidateDocument = File.ReadAllText(@"..\..\Server\trgValidateDocument.js");
+		    string triggerFileName = @"..\..\Server\trgValidateDocument.js";
+            string trgValidateDocument = File.ReadAllText(triggerFileName);
 			await CreateTrigger(client, "trgValidateDocument", trgValidateDocument, TriggerType.Pre, TriggerOperation.All);
 
 			// Create post-trigger
-			string trgUpdateMetadata = File.ReadAllText(@"..\..\Server\trgUpdateMetadata.js");
+		    triggerFileName = @"..\..\Server\trgUpdateMetadata.js";
+            string trgUpdateMetadata = File.ReadAllText(triggerFileName);
 			await CreateTrigger(client, "trgUpdateMetadata", trgUpdateMetadata, TriggerType.Post, TriggerOperation.Create);
 		}
 
@@ -77,9 +79,7 @@ namespace CosmosDbDemo.Demos
 			Console.WriteLine(">>> View Triggers <<<");
 			Console.WriteLine();
 
-			List<Trigger> triggers = client
-				.CreateTriggerQuery(MyStoreCollectionUri)
-				.ToList();
+			List<Trigger> triggers = client.CreateTriggerQuery(MyStoreCollectionUri).ToList();
 
 			foreach (Trigger trigger in triggers)
 			{
@@ -114,7 +114,8 @@ namespace CosmosDbDemo.Demos
 			{
 				name = "John Doe",
 				address = new { postalCode = "12345" },
-				weekdayOff = weekdayOff
+			    // ReSharper disable once RedundantAnonymousTypePropertyName
+			    weekdayOff = weekdayOff
 			};
 
 			RequestOptions options = new RequestOptions { PreTriggerInclude = new[] { "trgValidateDocument" } };
@@ -132,9 +133,9 @@ namespace CosmosDbDemo.Demos
 
 				return document._self;
 			}
-			catch (DocumentClientException ex)
+			catch (DocumentClientException exception)
 			{
-				Console.WriteLine($"Error: {ex.Message}");
+				Console.WriteLine($"Error: {exception.Message}");
 				Console.WriteLine();
 
 				return null;
@@ -146,6 +147,12 @@ namespace CosmosDbDemo.Demos
 			string sql = $"SELECT * FROM c WHERE c._self = '{documentLink}'";
 			FeedOptions feedOptions = new FeedOptions { EnableCrossPartitionQuery = true };
 			dynamic document = client.CreateDocumentQuery(MyStoreCollectionUri, sql, feedOptions).AsEnumerable().FirstOrDefault();
+
+		    if (document == null)
+		    {
+		        return;
+
+		    }
 
 			document.weekdayOff = weekdayOff;
 
@@ -194,11 +201,10 @@ namespace CosmosDbDemo.Demos
 			ViewMetaDocs(client);
 
 			// Cleanup
-			string sql = @"
+			const string sql = @"
 				SELECT c._self, c.address.postalCode
 				FROM c
-				WHERE c.address.postalCode IN('11229', '11235')
-			";
+				WHERE c.address.postalCode IN('11229', '11235')";
 
 			FeedOptions feedOptions = new FeedOptions { EnableCrossPartitionQuery = true };
 			List<dynamic> documentKeys = client.CreateDocumentQuery(MyStoreCollectionUri, sql, feedOptions).ToList();
@@ -209,9 +215,9 @@ namespace CosmosDbDemo.Demos
 			}
 		}
 
-		private static void ViewMetaDocs(DocumentClient client)
+		private static void ViewMetaDocs(IDocumentClient client)
 		{
-			string sql = @"SELECT * FROM c WHERE c.isMetaDoc";
+			const string sql = @"SELECT * FROM c WHERE c.isMetaDoc";
 
 			FeedOptions feedOptions = new FeedOptions { EnableCrossPartitionQuery = true };
 			List<dynamic> metaDocs = client.CreateDocumentQuery(MyStoreCollectionUri, sql, feedOptions).ToList();
@@ -229,7 +235,7 @@ namespace CosmosDbDemo.Demos
 			}
 		}
 
-		private static async Task DeleteTriggers(DocumentClient client)
+		private static async Task DeleteTriggers(IDocumentClient client)
 		{
 			Console.WriteLine();
 			Console.WriteLine(">>> Delete Triggers <<<");
@@ -239,7 +245,7 @@ namespace CosmosDbDemo.Demos
 			await DeleteTrigger(client, "trgUpdateMetadata");
 		}
 
-		private static async Task DeleteTrigger(DocumentClient client, string triggerId)
+		private static async Task DeleteTrigger(IDocumentClient client, string triggerId)
 		{
 			Uri triggerUri = UriFactory.CreateTriggerUri("mydb", "mystore", triggerId);
 
@@ -247,6 +253,5 @@ namespace CosmosDbDemo.Demos
 
 			Console.WriteLine($"Deleted trigger: {triggerId}");
 		}
-
 	}
 }
